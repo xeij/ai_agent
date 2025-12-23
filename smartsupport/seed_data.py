@@ -1,10 +1,3 @@
-"""
-Populates the database with realistic fake data:
-- 12 customers with varied profiles
-- 18 computer products (gaming PCs, workstations, components, peripherals)
-- 25 orders with realistic statuses and order items
-"""
-
 from datetime import datetime, timedelta
 import random
 from database import init_db, get_db_session, Customer, Product, Order, OrderItem, OrderStatus
@@ -15,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 def seed_customers(db):
-    """Seed customer data"""
     customers_data = [
         {"name": "John Doe", "email": "john.doe@email.com", "phone": "555-0101"},
         {"name": "Jane Smith", "email": "jane.smith@email.com", "phone": "555-0102"},
@@ -43,7 +35,6 @@ def seed_customers(db):
 
 
 def seed_products(db):
-    """Seed product catalog with gaming PCs, workstations, components, and peripherals"""
     products_data = [
         # Gaming PCs
         {
@@ -180,7 +171,6 @@ def seed_products(db):
 
 
 def seed_orders(db, customers, products):
-    """Seed orders with realistic data"""
     statuses = [OrderStatus.PENDING, OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.CANCELLED]
     status_weights = [0.15, 0.25, 0.55, 0.05]  # Most orders are delivered
     
@@ -244,7 +234,6 @@ def seed_orders(db, customers, products):
 
 
 def seed_database():
-    """Main seeding function"""
     logger.info("Starting database seeding...")
     
     # Initialize database
