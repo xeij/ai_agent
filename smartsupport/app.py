@@ -19,33 +19,148 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    /* Main container */
+    .main {
+        background-color: #000000;
+        color: #e0e0e0;
+    }
+    
+    .stApp {
+        background-color: #000000;
+    }
+    
+    /* Sidebar - hide completely */
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+    
+    section[data-testid="stSidebar"] {
+        display: none !important;
+    }
+    
+    .css-1d391kg {
+        display: none !important;
+    }
+    
+    /* Header */
     .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1E3A8A;
-        margin-bottom: 0.5rem;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 2rem 0 0.5rem 0;
+        letter-spacing: -0.5px;
     }
+    
     .sub-header {
-        font-size: 1.1rem;
-        color: #64748B;
+        text-align: center;
+        font-size: 1rem;
+        color: #808080;
         margin-bottom: 2rem;
+        font-weight: 400;
     }
-    .example-query {
-        background-color: #F1F5F9;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
-        cursor: pointer;
-        border-left: 4px solid #3B82F6;
-    }
-    .example-query:hover {
-        background-color: #E2E8F0;
-    }
+    
+    /* Chat messages */
     .stChatMessage {
-        background-color: #FFFFFF;
-        border-radius: 0.5rem;
+        background-color: #0f0f0f !important;
+        border: 1px solid #2a2a2a !important;
+        border-radius: 4px !important;
         padding: 1rem;
         margin: 0.5rem 0;
+    }
+    
+    .stChatMessage > div {
+        background-color: #0f0f0f !important;
+    }
+    
+    .stChatMessage p {
+        color: #e0e0e0 !important;
+    }
+    
+    .stChatMessage code {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+    }
+    
+    .stChatMessage pre {
+        background-color: #1a1a1a !important;
+    }
+    
+    /* Buttons */
+    .stButton button {
+        background-color: #1a1a1a;
+        color: #ffffff;
+        border: 1px solid #3a3a3a;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .stButton button:hover {
+        background-color: #2a2a2a;
+        border-color: #4a4a4a;
+    }
+    
+    /* Chat input */
+    .stChatInput {
+        background-color: #0f0f0f !important;
+    }
+    
+    .stChatInput > div {
+        background-color: #0f0f0f !important;
+        border: 1px solid #2a2a2a !important;
+        border-radius: 4px !important;
+    }
+    
+    .stChatInput input {
+        background-color: #0f0f0f !important;
+        color: #e0e0e0 !important;
+        border-radius: 4px !important;
+    }
+    
+    .stChatInput textarea {
+        background-color: #0f0f0f !important;
+        color: #e0e0e0 !important;
+        border: none !important;
+    }
+    
+    .stChatInput input::placeholder,
+    .stChatInput textarea::placeholder {
+        color: #606060 !important;
+    }
+    
+    /* Dividers */
+    hr {
+        border-color: #2a2a2a;
+        margin: 1.5rem 0;
+    }
+    
+    /* Remove any blue tints */
+    .stApp > header {
+        background-color: #000000 !important;
+    }
+    
+    [data-testid="stHeader"] {
+        background-color: #000000 !important;
+    }
+    
+    /* Fix bottom section */
+    .stApp > footer {
+        background-color: #000000 !important;
+    }
+    
+    [data-testid="stBottom"] {
+        background-color: #000000 !important;
+    }
+    
+    [data-testid="stBottomBlockContainer"] {
+        background-color: #000000 !important;
+    }
+    
+    /* Fix any remaining containers */
+    [data-testid="stVerticalBlock"] {
+        background-color: transparent !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -89,44 +204,39 @@ def initialize_session_state():
 def display_sidebar():
     with st.sidebar:
         st.markdown("### SmartSupport AI")
-        st.markdown("Your intelligent customer service assistant")
-        
+        st.markdown("Customer Service Agent")
         st.markdown("---")
         
-        st.markdown("### Example Queries")
-        
-        st.markdown("**Personalized Queries:**")
-        personalized_examples = [
-            "What's the status of order #1?",
-            "Show my recent orders (email: john.doe@email.com)",
-            "Do you have any RTX 4090 systems in stock?",
-        ]
-        
-        for example in personalized_examples:
-            if st.button(example, key=f"personal_{example}", use_container_width=True):
-                st.session_state.example_query = example
-        
-        st.markdown("**General Queries:**")
-        general_examples = [
-            "What gaming PCs do you offer?",
-            "Tell me about your warranty coverage",
-            "What's your return policy?",
-            "How does component upgrade work?",
-            "What financing options are available?",
-        ]
-        
-        for example in general_examples:
-            if st.button(example, key=f"general_{example}", use_container_width=True):
-                st.session_state.example_query = example
-        
-        st.markdown("---")
-        
-        # Clear conversation button
-        if st.button("Clear Conversation", use_container_width=True):
+        if st.button("Clear Chat", use_container_width=True):
             st.session_state.messages = []
             st.rerun()
+
+
+def display_example_queries():
+    """Display example queries in the center when conversation is empty"""
+    st.markdown("")
+    st.markdown("")
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        st.markdown("### Try asking:")
+        st.markdown("")
         
-        st.markdown("---")
+        examples = [
+            "Status of order #1?",
+            "Orders for john.doe@email.com",
+            "RTX 4090 in stock?",
+            "Gaming PCs available?",
+            "Warranty coverage?",
+            "Return policy?",
+            "Financing options?",
+        ]
+        
+        for example in examples:
+            if st.button(example, key=f"center_{example}", use_container_width=True):
+                st.session_state.example_query = example
+                st.rerun()
         
 
 
@@ -138,12 +248,14 @@ def main():
     # Initialize session state
     initialize_session_state()
     
-    # Display sidebar
     display_sidebar()
     
-    # Main content area
-    st.markdown('<div class="main-header">SmartSupport AI Agent</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">Hybrid AI customer service powered by SQL + RAG</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">SmartSupport AI</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">Customer Service Agent</div>', unsafe_allow_html=True)
+    
+    # Show example queries in center if no messages
+    if len(st.session_state.messages) == 0:
+        display_example_queries()
     
     # Display chat messages
     for message in st.session_state.messages:
