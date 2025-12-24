@@ -201,16 +201,6 @@ def initialize_session_state():
             st.session_state.agent = create_agent()
 
 
-def display_sidebar():
-    with st.sidebar:
-        st.markdown("### SmartSupport AI")
-        st.markdown("Customer Service Agent")
-        st.markdown("---")
-        
-        if st.button("Clear Chat", use_container_width=True):
-            st.session_state.messages = []
-            st.rerun()
-
 
 def display_example_queries():
     """Display example queries in the center when conversation is empty"""
