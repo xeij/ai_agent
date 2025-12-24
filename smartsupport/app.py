@@ -5,6 +5,7 @@ from agent import create_agent, stream_agent
 from rag import ingest_knowledge_base
 from seed_data import seed_database
 import logging
+import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -214,6 +215,42 @@ st.markdown("""
     [data-testid="stVerticalBlock"] {
         background-color: transparent !important;
     }
+    
+    /* Typing Indicator Animation */
+    .typing-indicator {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 5px;
+    }
+    
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        margin: 0 2px;
+        background-color: #e0e0e0;
+        border-radius: 50%;
+        opacity: 0;
+        animation: typing 1.4s infinite ease-in-out both;
+    }
+    
+    .typing-dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    
+    .typing-dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    
+    @keyframes typing {
+        0%, 80%, 100% { 
+            transform: scale(0);
+            opacity: 0.5;
+        }
+        40% { 
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -327,6 +364,18 @@ def main():
         with st.chat_message("assistant"):
             st.markdown('<div class="assistant-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
             message_placeholder = st.empty()
+            
+            # Show "thinking" animation
+            typing_html = """
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            """
+            message_placeholder.markdown(typing_html, unsafe_allow_html=True)
+            time.sleep(0.6)  # Small delay for UX
+            
             full_response = ""
             
             try:
@@ -359,6 +408,18 @@ def main():
         with st.chat_message("assistant"):
             st.markdown('<div class="assistant-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
             message_placeholder = st.empty()
+            
+            # Show "thinking" animation
+            typing_html = """
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            """
+            message_placeholder.markdown(typing_html, unsafe_allow_html=True)
+            time.sleep(0.6)  # Small delay for UX
+            
             full_response = ""
             
             try:
