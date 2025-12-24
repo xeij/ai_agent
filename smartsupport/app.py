@@ -1,10 +1,20 @@
 import streamlit as st
 import os
+import sys
+
+# Patch for sqlite3 on Streamlit Cloud (Linux)
+if sys.platform == "linux":
+    try:
+        __import__("pysqlite3")
+        sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+    except ImportError:
+        pass
+
+import logging
 from dotenv import load_dotenv
 from agent import create_agent, stream_agent
 from rag import ingest_knowledge_base
 from seed_data import seed_database
-import logging
 import time
 
 logging.basicConfig(level=logging.INFO)
