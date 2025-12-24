@@ -60,6 +60,15 @@ st.markdown("""
         font-weight: 400;
     }
     
+    /* Hide markdown header anchor links */
+    h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+        display: none !important;
+    }
+    
+    .stMarkdown h1 a, .stMarkdown h2 a, .stMarkdown h3 a {
+        display: none !important;
+    }
+    
     /* Chat messages */
     .stChatMessage {
         background-color: #0f0f0f !important;
@@ -69,8 +78,31 @@ st.markdown("""
         margin: 0.5rem 0;
     }
     
+    /* Hide chat avatars/icons */
+    .stChatMessage [data-testid="chatAvatarIcon"] {
+        display: none !important;
+    }
+    
+    .stChatMessage img {
+        display: none !important;
+    }
+    
+    /* User messages - slightly lighter */
+    [data-testid="stChatMessageContent"]:has(+ [data-testid="stChatMessageContent"]) {
+        background-color: #1a1a1a !important;
+    }
+    
+    /* Different shades for user vs assistant */
+    .stChatMessage[data-testid="user-message"] {
+        background-color: #1a1a1a !important;
+    }
+    
+    .stChatMessage[data-testid="assistant-message"] {
+        background-color: #0a0a0a !important;
+    }
+    
     .stChatMessage > div {
-        background-color: #0f0f0f !important;
+        background-color: transparent !important;
     }
     
     .stChatMessage p {
