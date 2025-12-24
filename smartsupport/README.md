@@ -1,61 +1,62 @@
-# Customer Support AI Agent
+# SmartSupport AI Agent
 
-A hybrid customer support agent demonstrating production-grade AI agent architecture. Combines SQL database queries with RAG (Retrieval-Augmented Generation) to handle both personalized account queries and general product information.
+This project implements a production-grade customer support agent capable of handling complex queries by intelligently routing between structured database records and unstructured knowledge base documents.
 
-Architecture Overview
+Combining SQL databases with Retrieval-Augmented Generation (RAG) allows the agent to provide grounded, accurate responses that traditional large language models cannot achieve on their own. It can check real-time inventory and order status just as easily as it can explain return policies or troubleshoot technical issues.
 
-This project implements a stateful AI agent using LangGraph that intelligently routes between two data sources:
+## Technical Architecture
 
-**Structured data (SQL)** - Customer accounts, orders, product inventory  
-**Unstructured data (RAG)** - Product documentation, policies, support guides
+The system is built on a hybrid architecture designed to eliminate hallucinations:
 
-The agent automatically determines which tools to use based on the user's query, preventing hallucinations by grounding responses in actual data rather than relying on the LLM's training.
+### 1. The Decision Engine (LangGraph)
+At the core is a stateful graph that acts as the agent's brain. Instead of a simple linear chain, the agent determines its own path based on the user's intent. It analyzes the incoming query and decides whether to consulting the SQL database, search the knowledge base, or do both.
 
+### 2. Structured Data Layer (SQL)
+For precise data like inventory counts, order status, and customer details, the agent uses a suite of SQL tools. It queries a relational database to fetch exact numbers and records. This ensures that when a user asks "Is the RTX 4090 in stock?", the answer is based on actual inventory rows, not a guess.
 
-Agent Workflow
+### 3. Unstructured Data Layer (RAG)
+For qualitative questions about policies, product features, and troubleshooting, the agent effectively "reads" a library of markdown documents.
+- **Ingestion:** Documents are split into 1000-character chunks and embedded using OpenAI's embedding models.
+- **Storage:** These embeddings are stored in a Chroma vector database.
+- **Retrieval:** When a user asks about a return policy, the system performs a semantic search to find the most relevant paragraphs and feeds them to the AI as context.
 
-The LangGraph workflow follows a simple pattern:
+## Key Features
 
-1. **User query** → Agent receives the question
-2. **Intent classification** → LLM analyzes whether this needs database access or knowledge base search
-3. **Tool execution** → Appropriate tools are called (SQL queries or vector search)
-4. **Response synthesis** → LLM generates a natural response using the retrieved data
+**Real-Time Order Tracking**
+Users can ask for the status of specific orders (e.g., "Status of order #1?"). The agent queries the `orders` table and returns the current status, date, and total amount.
 
-For knowledge base queries, the agent always cites source documents to maintain transparency and prevent making things up.
+**Intelligent Product Search**
+The agent mimics a knowledgeable sales representative. It can search for products by name, category, or price range. It understands context, allowing users to ask "Do you have any gaming PCs under $2000?"
 
-Components
+**Policy & Support Knowledge**
+By indexing internal documentation, the agent provides accurate answers regarding shipping times, return windows, warranty coverage, and technical support procedures. It cites the specific policy documents it used to formulate its answer.
 
-**agent.py** - LangGraph state machine with conditional routing. Uses GPT-4o-mini for cost-effective production deployment.
+**Contextual Memory**
+The conversation history is maintained, allowing for back-and-forth dialogue. If a user asks "How much is it?" immediately after asking about a specific computer, the agent understands which product is being discussed.
 
-**tools.py** - Six LangChain tools:
-- 5 SQL tools (customer lookup, order status, product search, etc.)
-- 1 RAG tool (knowledge base search with source citations)
+## How It Works Under the Hood
 
-**database.py** - SQLAlchemy models for customers, products, orders, and order items. Uses context managers for safe session handling.
+When a message is received, the following process occurs:
 
-**rag.py** - Document ingestion pipeline using RecursiveCharacterTextSplitter (1000 char chunks, 200 overlap) and Chroma for persistent vector storage.
+1.  **Classification:** The system prompt analyzes the user's input to determine if they need specific data (Tool Call) or general conversation.
+2.  **Routing:**
+    - If the user needs data, the agent selects the appropriate tool (e.g., `lookup_order` or `search_knowledge_base`).
+    - If the user is just saying "hello", it skips the tools and responds directly.
+3.  **Execution:** The selected tool runs.
+    - SQL tools execute safe, parameterized queries against the SQLite database.
+    - RAG tools perform a similarity search against the Chroma vector store.
+4.  **Synthesis:** The tool outputs (raw data or document snippets) are fed back to the Large Language Model (GPT-4o-mini), which synthesizes a natural, helpful response for the user.
 
-**app.py** - Streamlit interface with streaming responses and conversation history.
+## Setup and Installation
 
-Data Layer
+**Prerequisites:**
+- Python 3.10+
+- OpenAI API Key
 
-**Database** - SQLite with 12 sample customers, 18 computer products (gaming PCs, workstations, components), and 25 orders. All queries use parameterized SQLAlchemy ORM to prevent SQL injection.
+**Installation:**
+1. Clone the repository and navigate to the project folder.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Create a `.env` file and add your key: `OPENAI_API_KEY=your_key_here`
+4. Run the application: `streamlit run app.py`
 
-**Knowledge Base** - 10 markdown documents (~15,000 words) covering:
-- Product catalogs (gaming PCs, workstations)
-- Policies (warranty, returns, upgrades, shipping)
-- Services (custom builds, bulk orders, financing)
-- Support (troubleshooting, FAQs)
-
-Documents are embedded using OpenAI's text-embedding-3-small and stored in Chroma for similarity search.
-
-Example Interactions
-
-**Personal query**: "What's the status of order #1?"  
- Agent calls `get_order_status(1)` -> Returns order details from database
-
-**General query**: "What gaming PCs do you offer?"  
- Agent calls `retrieve_relevant_docs("gaming PCs")` -> Searches knowledge base -> Cites gaming_pc_series.md
-
-**Mixed query**: "Do you have RTX 4090 systems in stock?"  
- Agent calls `search_products("RTX 4090")` -> Returns inventory from database
+The system will automatically initialize the database with seed data and ingest the knowledge base documents upon the first run.
