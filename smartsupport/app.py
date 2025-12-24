@@ -69,7 +69,8 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Chat messages */
+    
+    /* Chat messages - base style */
     .stChatMessage {
         background-color: #0f0f0f !important;
         border: 1px solid #2a2a2a !important;
@@ -78,7 +79,7 @@ st.markdown("""
         margin: 0.5rem 0;
     }
     
-    /* Hide chat avatars/icons */
+    /* Hide chat avatars/icons - comprehensive */
     .stChatMessage [data-testid="chatAvatarIcon"] {
         display: none !important;
     }
@@ -87,18 +88,33 @@ st.markdown("""
         display: none !important;
     }
     
-    /* User messages - slightly lighter */
-    [data-testid="stChatMessageContent"]:has(+ [data-testid="stChatMessageContent"]) {
-        background-color: #1a1a1a !important;
+    .stChatMessage svg {
+        display: none !important;
     }
     
-    /* Different shades for user vs assistant */
-    .stChatMessage[data-testid="user-message"] {
-        background-color: #1a1a1a !important;
+    [data-testid="stChatMessageAvatarContainer"] {
+        display: none !important;
     }
     
-    .stChatMessage[data-testid="assistant-message"] {
+    .stChatMessage > div:first-child {
+        display: none !important;
+    }
+    
+    /* Hide the avatar column completely */
+    .stChatMessage [class*="avatar"] {
+        display: none !important;
+    }
+    
+    /* User messages - use :has() selector for robustness */
+    .stChatMessage:has(.user-message-marker) {
+        background-color: #1a1a1a !important;
+        border-left: 3px solid #3a3a3a !important;
+    }
+    
+    /* Assistant messages - use :has() selector for robustness */
+    .stChatMessage:has(.assistant-message-marker) {
         background-color: #0a0a0a !important;
+        border-left: 3px solid #2a2a2a !important;
     }
     
     .stChatMessage > div {
@@ -110,12 +126,16 @@ st.markdown("""
     }
     
     .stChatMessage code {
-        background-color: #1a1a1a !important;
+        background-color: #252525 !important;
         color: #e0e0e0 !important;
+        padding: 2px 6px;
+        border-radius: 3px;
     }
     
     .stChatMessage pre {
         background-color: #1a1a1a !important;
+        border: 1px solid #2a2a2a;
+        border-radius: 4px;
     }
     
     /* Buttons */
@@ -286,6 +306,10 @@ def main():
     # Display chat messages
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
+            if message["role"] == "user":
+                st.markdown('<div class="user-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="assistant-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
             st.markdown(message["content"])
     
     # Handle example query from sidebar
@@ -296,10 +320,12 @@ def main():
         # Add user message
         st.session_state.messages.append({"role": "user", "content": query})
         with st.chat_message("user"):
+            st.markdown('<div class="user-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
             st.markdown(query)
         
         # Generate and stream response
         with st.chat_message("assistant"):
+            st.markdown('<div class="assistant-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
             message_placeholder = st.empty()
             full_response = ""
             
@@ -326,10 +352,12 @@ def main():
         # Add user message
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
+            st.markdown('<div class="user-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
             st.markdown(prompt)
         
         # Generate and stream response
         with st.chat_message("assistant"):
+            st.markdown('<div class="assistant-message-marker" style="display:none;"></div>', unsafe_allow_html=True)
             message_placeholder = st.empty()
             full_response = ""
             
