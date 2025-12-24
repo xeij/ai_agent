@@ -124,7 +124,8 @@ def ingest_knowledge_base() -> None:
 def search_knowledge_base(query: str, k: int = 5) -> List[dict]:
     try:
         retriever = get_retriever(k=k)
-        results = retriever.get_relevant_documents(query)
+        # Use invoke() instead of get_relevant_documents() which is deprecated/removed
+        results = retriever.invoke(query)
         
         # Format results
         formatted_results = []
