@@ -231,17 +231,21 @@ def display_example_queries():
 
 
 def main():
-    # Initialize system
     if not initialize_system():
         st.stop()
     
-    # Initialize session state
     initialize_session_state()
-    
-    display_sidebar()
     
     st.markdown('<div class="main-header">SmartSupport AI</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-header">Customer Service Agent</div>', unsafe_allow_html=True)
+    
+    # Clear chat button (only show if there are messages)
+    if len(st.session_state.messages) > 0:
+        col1, col2, col3 = st.columns([2, 1, 2])
+        with col2:
+            if st.button("Clear Chat", use_container_width=True):
+                st.session_state.messages = []
+                st.rerun()
     
     # Show example queries in center if no messages
     if len(st.session_state.messages) == 0:
