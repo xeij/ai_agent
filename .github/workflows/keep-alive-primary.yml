@@ -1,0 +1,16 @@
+name: Keep Alive Primary
+
+on:
+  schedule:
+    # Run every 14 minutes
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Service
+        run: |
+          curl -f https://ai-agent-ydbu.onrender.com/ || echo "Primary ping failed"
+          echo "Primary pinged at $(date)"
