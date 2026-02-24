@@ -207,6 +207,26 @@ def search_products(keyword: str) -> List[Dict[str, Any]]:
 
 
 @tool
+def book_meeting(name: str, email: str, requested_time: str) -> str:
+    """
+    Book a meeting or consultation with the Stateira Labs team.
+    
+    Args:
+        name: Caller's full name
+        email: Caller's email address or best contact method
+        requested_time: The requested time or date for the meeting
+        
+    Returns:
+        A confirmation message indicating the booking request has been received.
+    """
+    logger.info(f"Meeting requested by {name} ({email}) for {requested_time}.")
+    
+    # In a real implementation, this would insert a row into a database or call Calendly APIs
+    # For this demo, we just return a success string.
+    
+    return f"Successfully recorded meeting request for {name} at {requested_time}. Our team will reach out to {email} shortly to confirm."
+
+@tool
 def get_customer_orders_summary(email: str) -> Dict[str, Any]:
     """
     Get complete customer profile with recent orders (combines customer lookup and order history).
@@ -327,7 +347,8 @@ ALL_TOOLS = [
     list_recent_orders,
     search_products,
     get_customer_orders_summary,
-    retrieve_relevant_docs
+    retrieve_relevant_docs,
+    book_meeting
 ]
 
 
