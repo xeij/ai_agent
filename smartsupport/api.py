@@ -51,7 +51,7 @@ async def incoming_call(request: Request):
     logger.info("Incoming call received from Twilio")
     
     response = VoiceResponse()
-    greeting = "Hi, I'm Abby from Stateira Labs. How can I help you?"
+    greeting = "Hi, I'm Abby. How can I help?"
     
     # Generate the greeting using ElevenLabs
     try:
@@ -82,9 +82,10 @@ async def incoming_call(request: Request):
         logger.info(f"Generated ElevenLabs greeting: {audio_url}")
         
     except Exception as tts_err:
-        logger.error(f"ElevenLabs TTS failed: {tts_err}. Falling back to Twilio TTS.")
-        # Fallback to Twilio text-to-speech if it fails
-        response.say(greeting, voice="Polly.Matthew")
+        logger.error(f"ElevenLabs TTS failed: {tts_err}. No fallback - call will end.")
+        response.say("Sorry, I'm having technical difficulties. Please try again later.")
+        response.hangup()
+        return HTMLResponse(content=str(response), media_type="application/xml")
     
     # Start gathering speech
     gather = Gather(
@@ -96,8 +97,8 @@ async def incoming_call(request: Request):
     )
     response.append(gather)
     
-    # If they don't say anything, say goodbye
-    response.say("We didn't receive any input. Goodbye!", voice="Polly.Matthew")
+    # If they don't say anything, hang up
+    response.hangup()
     
     return HTMLResponse(content=str(response), media_type="application/xml")
 
@@ -154,9 +155,10 @@ async def process_speech(request: Request, SpeechResult: str = Form(None)):
             logger.info(f"Generated ElevenLabs audio: {audio_url}")
             
         except Exception as tts_err:
-            logger.error(f"ElevenLabs TTS failed: {tts_err}. Falling back to Twilio TTS.")
-            # Fallback to Twilio text-to-speech
-            response.say(agent_reply, voice="Polly.Matthew")
+            logger.error(f"ElevenLabs TTS failed: {tts_err}. No fallback - ending call.")
+            response.say("I'm experiencing technical difficulties. Goodbye.")
+            response.hangup()
+            return HTMLResponse(content=str(response), media_type="application/xml")
         
     except Exception as e:
         logger.error(f"Error processing speech: {e}")
