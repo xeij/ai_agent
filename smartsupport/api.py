@@ -50,15 +50,20 @@ async def incoming_call(request: Request):
         if not eleven_client.api_key:
             raise ValueError("ELEVENLABS_API_KEY not set")
             
-        audio_generator = eleven_client.generate(
+        # Note: In elevenlabs v1+, client.generate is replaced with client.text_to_speech.convert
+        audio_generator = eleven_client.text_to_speech.convert(
             text=greeting,
-            voice=ELEVENLABS_VOICE_ID,
-            model="eleven_turbo_v2"
+            voice_id=ELEVENLABS_VOICE_ID,
+            model_id="eleven_turbo_v2"
         )
         
         filename = f"{uuid.uuid4()}.mp3"
         filepath = os.path.join(AUDIO_DIR, filename)
-        save(audio_generator, filepath)
+        
+        # Save by writing the bytes
+        with open(filepath, "wb") as f:
+            for chunk in audio_generator:
+                f.write(chunk)
         
         base_url = str(request.base_url).rstrip('/')
         if "onrender.com" in base_url and base_url.startswith("http://"):
@@ -117,16 +122,19 @@ async def process_speech(request: Request, SpeechResult: str = Form(None)):
             if not eleven_client.api_key:
                 raise ValueError("ELEVENLABS_API_KEY not set")
                 
-            audio_generator = eleven_client.generate(
+            audio_generator = eleven_client.text_to_speech.convert(
                 text=agent_reply,
-                voice=ELEVENLABS_VOICE_ID,
-                model="eleven_turbo_v2", # Fast model suitable for conversational AI
+                voice_id=ELEVENLABS_VOICE_ID,
+                model_id="eleven_turbo_v2", # Fast model suitable for conversational AI
             )
             
             # Save audio to a unique file
             filename = f"{uuid.uuid4()}.mp3"
             filepath = os.path.join(AUDIO_DIR, filename)
-            save(audio_generator, filepath)
+            
+            with open(filepath, "wb") as f:
+                for chunk in audio_generator:
+                    f.write(chunk)
             
             # Use <Play> to stream the generated audio url
             base_url = str(request.base_url).rstrip('/')
