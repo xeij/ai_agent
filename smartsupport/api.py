@@ -19,22 +19,14 @@ from agent import run_agent
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables
 load_dotenv()
-
-# Initialize FastAPI app
 app = FastAPI(title="Stateira Labs Voice Agent")
-
-# Initialize ElevenLabs Client
-# Requires ELEVENLABS_API_KEY to be set in .env
 eleven_client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY", ""))
 
 import tempfile
 
-# Define the Voice ID you wish to use from ElevenLabs
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM") # Example: Rachel
 
-# Directory for storing temp audio (using system temp directory for cloud compatibility)
 AUDIO_DIR = os.path.join(tempfile.gettempdir(), "stateira_audio")
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
@@ -51,13 +43,35 @@ async def incoming_call(request: Request):
     logger.info("Incoming call received from Twilio")
     
     response = VoiceResponse()
-    
-    # We use a custom greeting since ElevenLabs streaming over TwiML requires publicly accessible URLs.
-    # For simplicity,    # Send the greeting (Twilio voice for initial greeting, or you could pre-generate this on ElevenLabs)
     greeting = "Hi there, my name is Abby, an AI Agent designed for Stateira Labs by Shaya Arya. How can I help you today?"
     
-    # Send the greeting (Twilio voice for initial greeting)
-    response.say(greeting, voice="Polly.Matthew")
+    # Generate the greeting using ElevenLabs
+    try:
+        if not eleven_client.api_key:
+            raise ValueError("ELEVENLABS_API_KEY not set")
+            
+        audio_generator = eleven_client.generate(
+            text=greeting,
+            voice=ELEVENLABS_VOICE_ID,
+            model="eleven_turbo_v2"
+        )
+        
+        filename = f"{uuid.uuid4()}.mp3"
+        filepath = os.path.join(AUDIO_DIR, filename)
+        save(audio_generator, filepath)
+        
+        base_url = str(request.base_url).rstrip('/')
+        if "onrender.com" in base_url and base_url.startswith("http://"):
+            base_url = base_url.replace("http://", "https://")
+            
+        audio_url = f"{base_url}/audio/{filename}"
+        response.play(audio_url)
+        logger.info(f"Generated ElevenLabs greeting: {audio_url}")
+        
+    except Exception as tts_err:
+        logger.error(f"ElevenLabs TTS failed: {tts_err}. Falling back to Twilio TTS.")
+        # Fallback to Twilio text-to-speech if it fails
+        response.say(greeting, voice="Polly.Matthew")
     
     # Start gathering speech
     gather = Gather(
@@ -116,6 +130,9 @@ async def process_speech(request: Request, SpeechResult: str = Form(None)):
             
             # Use <Play> to stream the generated audio url
             base_url = str(request.base_url).rstrip('/')
+            if "onrender.com" in base_url and base_url.startswith("http://"):
+                base_url = base_url.replace("http://", "https://")
+                
             audio_url = f"{base_url}/audio/{filename}"
             response.play(audio_url)
             logger.info(f"Generated ElevenLabs audio: {audio_url}")
