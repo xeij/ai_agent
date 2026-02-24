@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import time
 from typing import Dict, Any
 
 import uuid
@@ -41,6 +42,10 @@ async def debug():
         "elevenlabs_voice_id": os.getenv("ELEVENLABS_VOICE_ID", "NOT_SET"),
         "openai_api_key_exists": bool(os.getenv("OPENAI_API_KEY"))
     }
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": time.time()}
 
 @app.post("/incoming_call")
 async def incoming_call(request: Request):
