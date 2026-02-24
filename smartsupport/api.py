@@ -31,7 +31,6 @@ eleven_client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY", ""))
 
 # Define the Voice ID you wish to use from ElevenLabs
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM") # Example: Rachel
-PUBLIC_URL = os.getenv("PUBLIC_URL", "http://your-ngrok-url.ngrok.io") # Must be set for Twilio to reach audio
 
 # Directory for storing temp audio
 AUDIO_DIR = os.path.join(os.path.dirname(__file__), "audio")
@@ -52,11 +51,8 @@ async def incoming_call(request: Request):
     response = VoiceResponse()
     
     # We use a custom greeting since ElevenLabs streaming over TwiML requires publicly accessible URLs.
-    # For simplicity, we use the default Twilio <Say> for the initial quick greeting, 
-    # then shift to processing their responses.
-    # Alternatively, you can pre-generate the greeting with ElevenLabs and host it.
-    
-    greeting = "Hello! Thanks for calling Stateira Labs. How can I help you today?"
+    # For simplicity,    # Send the greeting (Twilio voice for initial greeting, or you could pre-generate this on ElevenLabs)
+    greeting = "Hi there, my name is Abby, an AI Agent designed for Stateira Labs by Shaya Arya. How can I help you today?"
     
     # Send the greeting (Twilio voice for initial greeting)
     response.say(greeting, voice="Polly.Matthew")
@@ -117,7 +113,8 @@ async def process_speech(request: Request, SpeechResult: str = Form(None)):
             save(audio_generator, filepath)
             
             # Use <Play> to stream the generated audio url
-            audio_url = f"{PUBLIC_URL}/audio/{filename}"
+            base_url = str(request.base_url).rstrip('/')
+            audio_url = f"{base_url}/audio/{filename}"
             response.play(audio_url)
             logger.info(f"Generated ElevenLabs audio: {audio_url}")
             

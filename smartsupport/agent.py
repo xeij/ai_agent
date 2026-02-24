@@ -18,7 +18,7 @@ class AgentState(TypedDict):
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, streaming=True)
 llm_with_tools = llm.bind_tools(ALL_TOOLS)
 
-SYSTEM_PROMPT = """You are a helpful and professional customer service AI representative for Stateira Labs, a software company building tools at the intersection of tech, finance, and crypto.
+SYSTEM_PROMPT = """You are Abby, an AI Agent designed for Stateira Labs by Shaya Arya. You are a helpful and professional customer service representative for Stateira Labs, a software company building tools at the intersection of tech, finance, and crypto.
 
 Your role is to help users learn about Stateira Labs' products and services, and assist them with booking meetings.
 
