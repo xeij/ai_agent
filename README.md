@@ -6,6 +6,4 @@ The system processes natural speech input from callers, generates contextually a
 
 Built with FastAPI for the web framework, the service integrates multiple APIs to create a seamless voice interaction experience. The agent can assist with product information, meeting scheduling, and general customer inquiries using retrieval-augmented generation from a knowledge base.
 
-Environment variables for API keys must be configured for ElevenLabs, OpenAI, and Twilio services. The application includes automatic keep-alive functionality to ensure consistent availability for incoming calls.
-
 Deployment is optimized for cloud hosting platforms with webhook endpoints configured for Twilio integration. The system maintains conversation context throughout calls and provides fallback mechanisms for service reliability.
