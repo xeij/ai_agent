@@ -29,11 +29,13 @@ app = FastAPI(title="Stateira Labs Voice Agent")
 # Requires ELEVENLABS_API_KEY to be set in .env
 eleven_client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY", ""))
 
+import tempfile
+
 # Define the Voice ID you wish to use from ElevenLabs
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM") # Example: Rachel
 
-# Directory for storing temp audio
-AUDIO_DIR = os.path.join(os.path.dirname(__file__), "audio")
+# Directory for storing temp audio (using system temp directory for cloud compatibility)
+AUDIO_DIR = os.path.join(tempfile.gettempdir(), "stateira_audio")
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
 @app.get("/")
