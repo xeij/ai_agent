@@ -34,6 +34,14 @@ os.makedirs(AUDIO_DIR, exist_ok=True)
 async def root():
     return {"status": "ok", "service": "Stateira Labs Voice Agent"}
 
+@app.get("/debug")
+async def debug():
+    return {
+        "elevenlabs_api_key_exists": bool(os.getenv("ELEVENLABS_API_KEY")),
+        "elevenlabs_voice_id": os.getenv("ELEVENLABS_VOICE_ID", "NOT_SET"),
+        "openai_api_key_exists": bool(os.getenv("OPENAI_API_KEY"))
+    }
+
 @app.post("/incoming_call")
 async def incoming_call(request: Request):
     """
