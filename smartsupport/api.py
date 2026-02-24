@@ -43,11 +43,11 @@ async def incoming_call(request: Request):
     logger.info("Incoming call received from Twilio")
     
     response = VoiceResponse()
-    greeting = "Hi there, my name is Abby, an AI Agent designed for Stateira Labs by Shaya Arya. How can I help you today?"
+    greeting = "Hi, I'm Abby from Stateira Labs. How can I help you?"
     
     # Generate the greeting using ElevenLabs
     try:
-        if not eleven_client.api_key:
+        if not os.getenv("ELEVENLABS_API_KEY"):
             raise ValueError("ELEVENLABS_API_KEY not set")
             
         # Note: In elevenlabs v1+, client.generate is replaced with client.text_to_speech.convert
@@ -119,7 +119,7 @@ async def process_speech(request: Request, SpeechResult: str = Form(None)):
         
         # Generate ElevenLabs audio
         try:
-            if not eleven_client.api_key:
+            if not os.getenv("ELEVENLABS_API_KEY"):
                 raise ValueError("ELEVENLABS_API_KEY not set")
                 
             audio_generator = eleven_client.text_to_speech.convert(

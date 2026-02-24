@@ -7,9 +7,7 @@ Stateira Labs is a software company building tools at the intersection of techno
 - **Email:** stateiralabs@gmail.com
 - **Website:** https://stateiralabs.com
 - **Social Media:**
-  - Twitter/X: @StateiraLabs
-  - GitHub: xeij
-  - YouTube: @StateiraLabs
+  - Instagram: @stateiralabs
 
 ## Core Products & Services
 1. **Real-Time Trading Terminal**
