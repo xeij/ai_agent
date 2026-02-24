@@ -4,6 +4,7 @@ Stateira Labs is a software company building tools at the intersection of techno
 
 ## Contact Information
 - **Company Name:** Stateira Labs
+- **Founder/CEO:** Shaya Arya
 - **Email:** stateiralabs@gmail.com
 - **Website:** https://stateiralabs.com
 - **Social Media:**

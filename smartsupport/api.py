@@ -51,7 +51,7 @@ async def incoming_call(request: Request):
     logger.info("Incoming call received from Twilio")
     
     response = VoiceResponse()
-    greeting = "Hi, I'm Abby. How can I help?"
+    greeting = "Hello, I'm Tommy. How can I help you?"
     
     # Generate the greeting using ElevenLabs
     try:
