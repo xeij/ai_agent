@@ -10,6 +10,7 @@ fastapi
 uvicorn
 twilio
 elevenlabs
+python-multipart
 pydantic
 openai
 tiktoken
