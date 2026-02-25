@@ -2,8 +2,8 @@ name: Keep Alive Primary
 
 on:
   schedule:
-    # Run every 14 minutes
-    - cron: '*/14 * * * *'
+    # Run every 30 minutes at minute 0 and 30
+    - cron: '0,30 * * * *'
   workflow_dispatch:
 
 jobs:

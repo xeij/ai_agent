@@ -2,8 +2,8 @@ name: Keep Alive Secondary
 
 on:
   schedule:
-    # Run every 22 minutes (offset from primary)
-    - cron: '*/22 * * * *'
+    # Run every 30 minutes at minute 15 and 45 (alternating with primary)
+    - cron: '15,45 * * * *'
   workflow_dispatch:
 
 jobs:
