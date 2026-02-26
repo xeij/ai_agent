@@ -42,6 +42,14 @@ class TopicAnalysis:
 
 class SmartTopicGuard:
     def __init__(self):
+        # Common greetings that are neutral (not off-topic)
+        self.greeting_words = [
+            "hello", "hi", "hey", "howdy", "greetings", "good morning",
+            "good afternoon", "good evening", "morning", "afternoon", "evening",
+            "yo", "sup", "whats up", "what's up", "how are you", "how's it going",
+            "how are ya", "thanks", "thank you", "bye", "goodbye", "take care"
+        ]
+
         # Stateira Labs relevant topics
         self.business_keywords = [
             # Core business
@@ -98,6 +106,15 @@ class SmartTopicGuard:
         # Update call tracking
         if session_id:
             self._update_call_tracking(session_id, query)
+
+        # Check for common greetings - treat as neutral, let the agent handle them
+        if self._is_greeting(query_lower):
+            return TopicAnalysis(
+                relevance=TopicRelevance.SOMEWHAT_RELEVANT,
+                confidence=0.9,
+                reason="Common greeting - neutral",
+                suggested_action=CallAction.CONTINUE
+            )
 
         # Check for inappropriate content first
         inappropriateness_score = self._check_inappropriate_content(query_lower)
@@ -158,6 +175,19 @@ class SmartTopicGuard:
                     suggested_action=CallAction.WARN_GENTLE,
                     response_override="Hmm, I'm not sure how to help with that. I'm here for Stateira Labs questions - what can we do for you?"
                 )
+
+    def _is_greeting(self, query: str) -> bool:
+        """Check if the query is just a common greeting"""
+        query_stripped = query.strip("?!., ")
+        # Exact or near-exact greeting match
+        if query_stripped in self.greeting_words:
+            return True
+        # Short query that starts with a greeting word
+        if len(query_stripped.split()) <= 4:
+            for greeting in self.greeting_words:
+                if query_stripped.startswith(greeting):
+                    return True
+        return False
 
     def _calculate_business_relevance(self, query: str) -> float:
         """Calculate how relevant the query is to business"""
@@ -261,13 +291,16 @@ class SmartTopicGuard:
 
     def get_escalated_response(self, session_id: str, analysis: TopicAnalysis) -> Tuple[str, CallAction]:
         """Get escalated response based on call history"""
+        # If the current query is acceptable, always let it through regardless of history
+        if analysis.suggested_action == CallAction.CONTINUE:
+            return analysis.response_override or "", CallAction.CONTINUE
+
         if session_id not in self.call_tracking:
             return analysis.response_override or "Let's keep this focused on Stateira Labs. What can I help you with?", analysis.suggested_action
 
         tracking = self.call_tracking[session_id]
 
-        # Count recent off-topic/inappropriate queries
-        recent_threshold = time.time() - 120  # Last 2 minutes
+        # Count recent genuinely off-topic/inappropriate queries (exclude greetings)
         recent_off_topic = sum(1 for q in tracking["queries"][-5:]
                               if self.analyze_query(q["text"]).relevance in [TopicRelevance.OFF_TOPIC, TopicRelevance.INAPPROPRIATE])
 
@@ -280,7 +313,7 @@ class SmartTopicGuard:
         elif recent_off_topic >= 1:
             return analysis.response_override or self._get_gentle_warning(), CallAction.WARN_GENTLE
         else:
-            return analysis.response_override or "Let's focus on Stateira Labs. How can I help?", CallAction.CONTINUE
+            return analysis.response_override or "", CallAction.CONTINUE
 
     def _get_inappropriate_response(self, severity: float) -> str:
         """Get response for inappropriate content"""
