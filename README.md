@@ -1,5 +1,7 @@
 # AI Voice Agent for Stateira Labs - +1 254 735 3534
 
+Note: Currently out of tokens
+
 This project implements an intelligent voice assistant that handles incoming phone calls using Twilio for telecommunications, ElevenLabs for text-to-speech synthesis, and OpenAI for conversational AI capabilities.
 
 The system processes natural speech input from callers, generates contextually appropriate responses through an AI agent, and delivers audio responses using high-quality voice synthesis. The application is designed to provide professional customer service interactions for Stateira Labs (my freelance website).
